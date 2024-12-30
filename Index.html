@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Maya!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to top, #f7c0cb, #fff0f5);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            padding: 40px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.4s ease-in-out;
+        }
+
+        h1 {
+            color: #e91e63;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #4caf50;
+            font-size: 2em;
+        }
+
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 15px 10px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #d81b60;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .progress {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        #feedback {
+            color: #f44336;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .final-message {
+            display: none;
+            background-color: #f8e0e6;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            animation: messageAnimation 2s forwards;
+        }
+
+        @keyframes messageAnimation {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .flowers {
+            background-image: url('https://img.icons8.com/ios/452/flower.png');
+            background-size: 40px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            margin: 20px 0;
+            animation: flowerAnimation 2s ease-in-out infinite;
+        }
+
+        @keyframes flowerAnimation {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .heart {
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="header">Hey, Maya!</h1>
+        <p id="intro">Are you ready for a fun little game? Let’s see how well you know us!</p>
+        <button id="start-btn">Start Quiz</button>
+
+        <div class="quiz-container" id="quiz">
+            <h2 id="question">Question</h2>
+            <div id="answers"></div>
+            <p class="progress" id="progress">Question 1 of X</p>
+            <p id="feedback"></p>
+        </div>
+
+        <div class="final-message" id="final-message">
+            <div class="flowers"></div>
+            <h2>Congratulations, Maya!</h2>
+            <p>You’ve completed the game! Here's a message from Kenn:</p>
+            <p>
+                🎉 Happy Birthday, Maya! You've come such a long way, and I feel so lucky to have you in my life.  
+                May this year bring you the most beautiful memories, the best adventures, and everything your heart desires.  
+                May your soul continue to grow and shine brighter with each passing day. Here's to more laughter, love, and dreams coming true.  
+                I love you with all my heart, Mary. ❤️
+            </p>
+            <button onclick="reloadPage()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What was one of our favorite activities together?",
+                answers: ["Motorbike rides", "Dancing", "Cooking together", "Handball"],
+                correct: 0
+            },
+            {
+                question: "Where did we first meet?",
+                answers: ["At the beach", "Juja", "A restaurant", "In the city"],
+                correct: 1
+            },
+            {
+                question: "What do I love most about you?",
+                answers: ["Your dance moves", "Your support and kindness", "Your playfulness and joy", "Your cooking skills"],
+                correct: 1
+            },
+            {
+                question: "How do I feel about you?",
+                answers: ["I love you so much, Maya!", "You complete me, Maya!", "You are my happiness, Maya!", "I’m lucky to have you, Maya!"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        const startBtn = document.getElementById("start-btn");
+        const header = document.getElementById("header");
+        const intro = document.getElementById("intro");
+        const quizContainer = document.getElementById("quiz");
+        const finalMessage = document.getElementById("final-message");
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        const progressElement = document.getElementById("progress");
+        const feedbackElement = document.getElementById("feedback");
+
+        startBtn.onclick = () => {
+            // Hide initial elements
+            header.style.display = "none"; 
+            intro.style.display = "none"; 
+            startBtn.style.display = "none"; 
+
+            // Show the quiz container
+            quizContainer.style.display = "block"; 
+            loadQuestion(); // Start loading the first question
+        };
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            progressElement.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            feedbackElement.textContent = "";
+
+            answersElement.innerHTML = "";
+            currentQuestion.answers.forEach((answer, index) => {
+                const button = document.createElement("button");
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(index);
+                answersElement.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            if (selectedIndex === currentQuestion.correct) {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalMessage();
+                }
+            } else {
+                feedbackElement.textContent = "Oops! That’s not quite right, but don’t worry, you’re doing great! Let’s try again, I know you’ve got this!";
+            }
+        }
+
+        function showFinalMessage() {
+            quizContainer.style.display = "none"; // Hide quiz container
+            finalMessage.style.display = "block"; // Show final message with birthday greeting
+        }
+
+        function reloadPage() {
+            location.reload(); // Reload the page to play again
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Maya!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to top, #f7c0cb, #fff0f5);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            padding: 40px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.4s ease-in-out;
+        }
+
+        h1 {
+            color: #e91e63;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #4caf50;
+            font-size: 2em;
+        }
+
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 15px 10px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #d81b60;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .progress {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        #feedback {
+            color: #f44336;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .final-message {
+            display: none;
+            background-color: #f8e0e6;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            animation: messageAnimation 2s forwards;
+        }
+
+        @keyframes messageAnimation {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .flowers {
+            background-image: url('https://img.icons8.com/ios/452/flower.png');
+            background-size: 40px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            margin: 20px 0;
+            animation: flowerAnimation 2s ease-in-out infinite;
+        }
+
+        @keyframes flowerAnimation {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .heart {
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="header">Hey, Maya!</h1>
+        <p id="intro">Are you ready for a fun little game? Let’s see how well you know us!</p>
+        <button id="start-btn">Start Quiz</button>
+
+        <div class="quiz-container" id="quiz">
+            <h2 id="question">Question</h2>
+            <div id="answers"></div>
+            <p class="progress" id="progress">Question 1 of X</p>
+            <p id="feedback"></p>
+        </div>
+
+        <div class="final-message" id="final-message">
+            <div class="flowers"></div>
+            <h2>Congratulations, Maya!</h2>
+            <p>You’ve completed the game! Here's a message from Kenn:</p>
+            <p>
+                🎉 Happy Birthday, Maya! You've come such a long way, and I feel so lucky to have you in my life.  
+                May this year bring you the most beautiful memories, the best adventures, and everything your heart desires.  
+                May your soul continue to grow and shine brighter with each passing day. Here's to more laughter, love, and dreams coming true.  
+                I love you with all my heart, Mary. ❤️
+            </p>
+            <button onclick="reloadPage()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What was one of our favorite activities together?",
+                answers: ["Motorbike rides", "Dancing", "Cooking together", "Handball"],
+                correct: 0
+            },
+            {
+                question: "Where did we first meet?",
+                answers: ["At the beach", "Juja", "A restaurant", "In the city"],
+                correct: 1
+            },
+            {
+                question: "What do I love most about you?",
+                answers: ["Your dance moves", "Your support and kindness", "Your playfulness and joy", "Your cooking skills"],
+                correct: 1
+            },
+            {
+                question: "How do I feel about you?",
+                answers: ["I love you so much, Maya!", "You complete me, Maya!", "You are my happiness, Maya!", "I’m lucky to have you, Maya!"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        const startBtn = document.getElementById("start-btn");
+        const header = document.getElementById("header");
+        const intro = document.getElementById("intro");
+        const quizContainer = document.getElementById("quiz");
+        const finalMessage = document.getElementById("final-message");
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        const progressElement = document.getElementById("progress");
+        const feedbackElement = document.getElementById("feedback");
+
+        startBtn.onclick = () => {
+            // Hide initial elements
+            header.style.display = "none"; 
+            intro.style.display = "none"; 
+            startBtn.style.display = "none"; 
+
+            // Show the quiz container
+            quizContainer.style.display = "block"; 
+            loadQuestion(); // Start loading the first question
+        };
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            progressElement.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            feedbackElement.textContent = "";
+
+            answersElement.innerHTML = "";
+            currentQuestion.answers.forEach((answer, index) => {
+                const button = document.createElement("button");
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(index);
+                answersElement.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            if (selectedIndex === currentQuestion.correct) {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalMessage();
+                }
+            } else {
+                feedbackElement.textContent = "Oops! That’s not quite right, but don’t worry, you’re doing great! Let’s try again, I know you’ve got this!";
+            }
+        }
+
+        function showFinalMessage() {
+            quizContainer.style.display = "none"; // Hide quiz container
+            finalMessage.style.display = "block"; // Show final message with birthday greeting
+        }
+
+        function reloadPage() {
+            location.reload(); // Reload the page to play again
+        }
+    </script>
+</body>
+</html>
